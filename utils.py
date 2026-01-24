@@ -499,9 +499,15 @@ def quality_assess(X, Y, data_range=255):
     if X.ndim == 3:
         psnr = compare_psnr(Y, X, data_range=data_range)
         try:
-            ssim = compare_ssim(Y, X, data_range=data_range, multichannel=True)
+            # Try new channel_axis parameter (scikit-image >= 0.19.0)
+            ssim = compare_ssim(Y, X, data_range=data_range, channel_axis=-1)
         except (ValueError, TypeError):
-            ssim = 0
+            try:
+                # Fall back to old multichannel parameter (scikit-image < 0.19.0)
+                ssim = compare_ssim(Y, X, data_range=data_range, multichannel=True)
+            except (ValueError, TypeError):
+                print(f"Warning: SSIM calculation failed for shapes Y={Y.shape}, X={X.shape}")
+                ssim = 0
         return {'PSNR':psnr, 'SSIM': ssim}
     else:
         raise NotImplementedError

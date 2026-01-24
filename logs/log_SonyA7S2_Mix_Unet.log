@@ -26,62 +26,43 @@ Command:	augv1.2, idremap, darkshading2
 Using Jittor with CUDA: 1, GPU Count: 1
 2025-12-22 18:16:23 >>  Epoch 100: PSNR=45.06
 psnrs_lr=27.15, psnrs_dn=45.06
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-22 20:22:08 >>  Epoch 200: PSNR=46.16
 psnrs_lr=27.15, psnrs_dn=46.16
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-22 22:30:44 >>  Epoch 300: PSNR=46.66
 psnrs_lr=27.15, psnrs_dn=46.66
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-23 00:42:31 >>  Epoch 400: PSNR=47.29
 psnrs_lr=27.15, psnrs_dn=47.29
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-23 02:54:12 >>  Epoch 500: PSNR=47.17
 psnrs_lr=27.15, psnrs_dn=47.17
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-23 05:07:02 >>  Epoch 600: PSNR=48.41
 psnrs_lr=27.15, psnrs_dn=48.41
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-23 05:07:03 >>  Successfully reload best model (Eval PSNR:48.40720525073265)
 2025-12-23 07:19:49 >>  Epoch 700: PSNR=47.09
 psnrs_lr=27.15, psnrs_dn=47.09
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-23 09:34:48 >>  Epoch 800: PSNR=47.69
 psnrs_lr=27.15, psnrs_dn=47.69
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-23 11:52:10 >>  Epoch 900: PSNR=48.37
 psnrs_lr=27.15, psnrs_dn=48.37
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-23 14:02:45 >>  Epoch 1000: PSNR=47.64
 psnrs_lr=27.15, psnrs_dn=47.64
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-23 16:17:56 >>  Epoch 1100: PSNR=47.77
 psnrs_lr=27.15, psnrs_dn=47.77
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-23 18:31:33 >>  Epoch 1200: PSNR=48.04
 psnrs_lr=27.15, psnrs_dn=48.04
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-23 18:31:33 >>  Successfully reload best model (Eval PSNR:48.40720525073265)
 2025-12-23 20:46:37 >>  Epoch 1300: PSNR=47.34
 psnrs_lr=27.15, psnrs_dn=47.34
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-23 23:01:34 >>  Epoch 1400: PSNR=48.04
 psnrs_lr=27.15, psnrs_dn=48.04
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-24 01:20:13 >>  Epoch 1500: PSNR=48.17
 psnrs_lr=27.15, psnrs_dn=48.17
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-24 03:40:11 >>  Epoch 1600: PSNR=48.28
 psnrs_lr=27.15, psnrs_dn=48.28
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-24 06:00:07 >>  Epoch 1700: PSNR=48.23
 psnrs_lr=27.15, psnrs_dn=48.23
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-24 08:23:49 >>  Epoch 1800: PSNR=48.31
 psnrs_lr=27.15, psnrs_dn=48.31
-ssims_lr=0.0000, ssims_dn=0.0000
 2025-12-24 08:23:49 >>  Successfully reload best model (Eval PSNR:48.40720525073265)
-
 
 
 Model Name:	SonyA7S2_Mix_Unet
@@ -97,23 +78,23 @@ Epoch:		1800
 num_workers:	4
 Command:	augv1.2, idremap, darkshading2
 Using Jittor with CUDA: 1, GPU Count: 1
-2025-12-24 12:16:05 >>  ELD Datasets: Dgain=100
-2025-12-24 12:17:07 >>  Epoch -1: PSNR=46.18
+2026-01-24 20:33:54 >>  ELD Datasets: Dgain=100
+2026-01-24 20:34:52 >>  Epoch -1: PSNR=46.18
 psnrs_lr=31.22, psnrs_dn=46.18
-ssims_lr=0.0000, ssims_dn=0.0000
-2025-12-24 12:17:07 >>  ELD Datasets: Dgain=200
-2025-12-24 12:17:41 >>  Epoch -1: PSNR=44.44
+ssims_lr=0.5146, ssims_dn=0.9835
+2026-01-24 20:34:52 >>  ELD Datasets: Dgain=200
+2026-01-24 20:35:48 >>  Epoch -1: PSNR=44.44
 psnrs_lr=26.28, psnrs_dn=44.44
-ssims_lr=0.0000, ssims_dn=0.0000
-2025-12-24 12:17:42 >>  SID Datasets: Dgain=100
-2025-12-24 12:18:28 >>  Epoch -1: PSNR=42.85
+ssims_lr=0.2401, ssims_dn=0.9703
+2026-01-24 20:35:49 >>  SID Datasets: Dgain=100
+2026-01-24 20:37:04 >>  Epoch -1: PSNR=42.85
 psnrs_lr=29.35, psnrs_dn=42.85
-ssims_lr=0.0000, ssims_dn=0.0000
-2025-12-24 12:18:28 >>  SID Datasets: Dgain=250
-2025-12-24 12:19:14 >>  Epoch -1: PSNR=40.64
+ssims_lr=0.5259, ssims_dn=0.9583
+2026-01-24 20:37:04 >>  SID Datasets: Dgain=250
+2026-01-24 20:38:18 >>  Epoch -1: PSNR=40.64
 psnrs_lr=24.00, psnrs_dn=40.64
-ssims_lr=0.0000, ssims_dn=0.0000
-2025-12-24 12:19:14 >>  SID Datasets: Dgain=300
-2025-12-24 12:19:59 >>  Epoch -1: PSNR=37.07
+ssims_lr=0.3346, ssims_dn=0.9415
+2026-01-24 20:38:18 >>  SID Datasets: Dgain=300
+2026-01-24 20:39:54 >>  Epoch -1: PSNR=37.07
 psnrs_lr=23.92, psnrs_dn=37.07
-ssims_lr=0.0000, ssims_dn=0.0000
+ssims_lr=0.3277, ssims_dn=0.9311

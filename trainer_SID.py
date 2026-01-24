@@ -279,12 +279,28 @@ class SID_Trainer(Base_Trainer):
                     self.eval_psnr_dn.update(res['PSNR'])
                     self.eval_ssim_dn.update(res['SSIM'])
                     metrics[name] = raw_metrics
+                    
+                    # 计算输入图像的PSNR和SSIM
+                    if epoch > 0:  # 训练期间快速评估 - 总是计算
+                        inputs = tensor2im(imgs_lr)
+                        res_in = quality_assess(inputs, target, data_range=255)
+                        self.eval_psnr_lr.update(res_in['PSNR'])
+                        self.eval_ssim_lr.update(res_in['SSIM'])
+                    elif epoch < 0 and not save_plot:  # 测试时但不保存图像 - 也要计算输入指标
+                        inputs = tensor2im(imgs_lr)
+                        res_in = quality_assess(inputs, target, data_range=255)
+                        self.eval_psnr_lr.update(res_in['PSNR'])
+                        self.eval_ssim_lr.update(res_in['SSIM'])
+                    
                     # convert raw to rgb
                     if save_plot:
                         if self.infos is None:
-                            inputs = tensor2im(imgs_lr)
-                            res_in = quality_assess(inputs, target, data_range=255)
-                            raw_metrics = [res_in['PSNR'], res_in['SSIM']] + raw_metrics
+                            if epoch <= 0:  # 只在测试时计算输入的PSNR/SSIM用于绘图
+                                inputs = tensor2im(imgs_lr)
+                                res_in = quality_assess(inputs, target, data_range=255)
+                                raw_metrics = [res_in['PSNR'], res_in['SSIM']] + raw_metrics
+                            else:
+                                raw_metrics = [0, 0] + raw_metrics  # 占位符
                         else:
                             raw_metrics = [self.infos[k]['PSNR_raw'], self.infos[k]['SSIM_raw']] + raw_metrics
                         if epoch > 0:
@@ -322,9 +338,7 @@ class SID_Trainer(Base_Trainer):
                 for task in as_completed(task_list):
                     psnr, ssim = task.result()
                     self.eval_psnr_lr.update(psnr[0])
-                    self.eval_psnr_dn.update(psnr[1])
                     self.eval_ssim_lr.update(ssim[0])
-                    self.eval_ssim_dn.update(ssim[1])
 
         # Sync metrics across GPUs
         self.eval_psnr.sync()
@@ -370,10 +384,9 @@ class SID_Trainer(Base_Trainer):
                         model_name=self.model_name,
                         save_path=self.sample_dir,
                         res=raw_metrics)
-        self.eval_psnr_lr.update(psnr[0])
-        self.eval_psnr_dn.update(psnr[1])
-        self.eval_ssim_lr.update(ssim[0])
-        self.eval_ssim_dn.update(ssim[1])
+        # 在这里只更新输入的PSNR和SSIM，因为输出的已经在main eval中更新过了
+        # self.eval_psnr_lr 和 self.eval_ssim_lr 会在主函数中从task结果更新
+        return psnr, ssim
 
     def predict(self, raw, name='ds'):
         self.net.eval()
