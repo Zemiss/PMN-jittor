@@ -1,8 +1,6 @@
-# PMN-Jittor
+# 人工智能实践课大作业：PMN-Jittor
 
-> Jittor implementation of **PMN: Enhancing the Learnability of Low-Light Raw Denoising with Paired Real Data and Noise Modeling**.
-
-本仓库是南开大学人工智能实践课程作业的论文复现项目，主题为 **RAW 域低光照图像去噪**。项目将 PMN 的核心训练与评估流程迁移到 Jittor，并在 SID / ELD 数据集上完成复现实验。
+> 论文复现和迁移项目：主题为 **RAW 域低光照图像去噪**。项目将 PMN 的核心训练与评估流程迁移到 Jittor，并在 SID / ELD 数据集上完成复现实验。
 
 ![Jittor](https://img.shields.io/badge/Jittor-1.3%2B-blue)
 ![Python](https://img.shields.io/badge/Python-3.7%2B-green)
