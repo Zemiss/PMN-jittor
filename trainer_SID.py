@@ -1,6 +1,5 @@
 import os
 import time
-import random
 import jittor as jt
 from jittor import optim
 from data_process import *
@@ -12,18 +11,10 @@ from base_trainer import *
 class SID_Trainer(Base_Trainer):
     def __init__(self):
         super().__init__()
-        # model
         self.net = globals()[self.arch['name']](self.arch)
-        # load weight
-        if self.hyper['last_epoch']:    # 不是初始化
-            try:
-                model_path = os.path.join(f'./checkpoints/{self.model_name}_best_model.pth')
-                if not os.path.exists(model_path):
-                    model_path = os.path.join(f'./checkpoints/{self.model_name}_last_model.pth')
-                model = jt.load(model_path)
-                self.net = load_weights(self.net, model, by_name=True)
-            except:
-                log('No checkpoint file!!!')
+
+        if self.hyper['last_epoch']:
+            self._load_checkpoint(by_name=True)
         else:
             log(f'Initializing {self.arch["name"]}...')
             # initialize_weights(self.net)
@@ -32,15 +23,9 @@ class SID_Trainer(Base_Trainer):
         
         self.infos = None
         if self.mode=='train':
-            self.dst_train = globals()[self.args['dst_train']['dataset']](self.args['dst_train'])
-            # Jittor Dataset 不需要DataLoader包装，直接使用即可
-            # 使用set_attrs配置batch_size和shuffle
-            self.dst_train.set_attrs(batch_size=self.hyper['batch_size'], shuffle=True)
+            self.dst_train = self._build_dataset(self.args['dst_train'], self.hyper['batch_size'], shuffle=True)
             self.dataloader_train = self.dst_train
             self.change_eval_dst('eval')
-            eval_batch_size = max(jt.world_size, 1)
-            self.dst_eval.set_attrs(batch_size=eval_batch_size, shuffle=False)
-            self.dataloader_eval = self.dst_eval
 
         # Choose Learning Rate
         self.lr_lambda = self.get_lr_lambda_func()
@@ -82,17 +67,42 @@ class SID_Trainer(Base_Trainer):
 
         # Jittor 自动处理多GPU，无需DataParallel
         self.multi_gpu = False
-        self.ratiofix = True if 'ratiofix' in self.dst['command'] else False
+        self.ratiofix = 'ratiofix' in self.dst.get('command', '')
+
+    def _build_dataset(self, dataset_args, batch_size, shuffle=False):
+        dataset = globals()[dataset_args['dataset']](dataset_args)
+        dataset.set_attrs(batch_size=batch_size, shuffle=shuffle)
+        return dataset
+
+    def _checkpoint_candidates(self):
+        return [
+            os.path.join('checkpoints', f'{self.model_name}_best_model.pth'),
+            os.path.join('checkpoints', f'{self.model_name}_last_model.pth'),
+        ]
+
+    def _load_checkpoint(self, by_name=False):
+        for model_path in self._checkpoint_candidates():
+            if not os.path.exists(model_path):
+                continue
+
+            try:
+                model = jt.load(model_path)
+                self.net = load_weights(self.net, model, by_name=by_name)
+                log(f'Loaded checkpoint: {model_path}')
+                return model_path
+            except Exception as exc:
+                log(f'Failed to load checkpoint "{model_path}": {exc}')
+
+        log('No checkpoint file found; continue with current weights.')
+        return None
     
     def change_eval_dst(self, mode='eval'):
         self.dst = self.args[f'dst_{mode}']
         self.dstname = self.dst['dstname']
-        self.dst_eval = globals()[self.dst['dataset']](self.dst)
-        # Jittor Dataset 配置
         eval_batch_size = max(jt.world_size, 1)
-        self.dst_eval.set_attrs(batch_size=eval_batch_size, shuffle=False)
+        self.dst_eval = self._build_dataset(self.dst, eval_batch_size, shuffle=False)
         self.dataloader_eval = self.dst_eval
-        self.cache_dir = f'/data/cache/{self.dstname}'
+        self.cache_dir = os.path.join(self.cache_root, self.dstname)
 
     def train(self):
         self.scheduler.step()
@@ -485,16 +495,13 @@ if __name__ == '__main__':
         trainer.train_psnr.plot_history(savefile=savefile, logfile=logfile)
         trainer.eval_psnr.plot_history(savefile=os.path.join(trainer.sample_dir, f'{trainer.model_name}_eval_psnr.jpg'))
         trainer.mode = 'evaltest'
-    # best_model
-    best_model_path = os.path.join(f'./checkpoints/{trainer.model_name}_best_model.pth')
-    if os.path.exists(best_model_path) is False: 
-        best_model_path = os.path.join(f'./checkpoints/{trainer.model_name}_last_model.pth')
-    best_model = jt.load(best_model_path)
-    trainer.net = load_weights(trainer.net, best_model)
+
+    trainer._load_checkpoint()
     if 'eval' in trainer.mode:
         # ELD
         trainer.change_eval_dst('eval')
         for dgain in trainer.args['dst_eval']['ratio_list']:
+            trainer.infos = None
             info_path = os.path.join(trainer.cache_dir, f'{trainer.dstname}_{dgain}.pkl')
             if os.path.exists(info_path):
                 with open(info_path,'rb') as f:
@@ -510,6 +517,7 @@ if __name__ == '__main__':
         trainer.change_eval_dst('test')
         SID_ratio_list = [100, 250, 300]
         for dgain in SID_ratio_list:
+            trainer.infos = None
             info_path = os.path.join(trainer.cache_dir, f'{trainer.dstname}_{dgain}.pkl')
             if os.path.exists(info_path):
                 with open(info_path,'rb') as f:

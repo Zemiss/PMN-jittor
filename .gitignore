@@ -1,0 +1,29 @@
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.venv/
+venv/
+
+# Local data and runtime output
+cache/
+datasets/
+logs/*
+metrics/*
+checkpoints/*
+saved_model/*
+images/samples-*/
+images/*_psnr.*
+pth_transfer/
+test_output/
+
+# Large local RAW/noise resources
+*.ARW
+resources/*.npy
+resources/*.pkl
+
+# Keep curated README assets if new files are added later.
+!images/github/
+!images/github/**

@@ -1,25 +1,50 @@
-import random
 import argparse
+import math
+import os
+import random
+import socket
+from pathlib import Path
+
 import jittor as jt
+import numpy as np
+import yaml
 
 from utils import *
 from archs import *
 from losses import *
-from pathlib import Path
 
-class BaseParser():
+
+def str2bool(value):
+    """Parse common CLI boolean forms correctly."""
+    if isinstance(value, bool):
+        return value
+
+    value = value.lower()
+    if value in {'true', 't', '1', 'yes', 'y'}:
+        return True
+    if value in {'false', 'f', '0', 'no', 'n'}:
+        return False
+
+    raise argparse.ArgumentTypeError(f"invalid boolean value: {value}")
+
+
+class BaseParser:
     def __init__(self):
         self.parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     def parse(self):
         self.parser.add_argument('--runfile', '-f', default="runfiles/Ours.yml", type=Path, help="path to config")
-        self.parser.add_argument('--mode', '-m', default=None, type=str, help="train or test")
-        self.parser.add_argument('--save_plot', '-s', default=True, type=bool, help="save or not")
-        self.parser.add_argument('--debug', '-d', default=False, type=bool, help="debug or not")
+        self.parser.add_argument('--mode', '-m', default=None, type=str, choices=['train', 'eval', 'test', 'evaltest'],
+                                 help="override config mode")
+        self.parser.add_argument('--save_plot', '-s', default=True, nargs='?', const=True, type=str2bool,
+                                 help="save visual comparison images")
+        self.parser.add_argument('--debug', '-d', default=False, nargs='?', const=True, type=str2bool,
+                                 help="run with num_workers=0")
 
         return self.parser.parse_args()
 
-class Base_Trainer():
+
+class Base_Trainer:
     def __init__(self):
         self.initialization()
     
@@ -33,6 +58,8 @@ class Base_Trainer():
             self.lr_lambda = lambda x: get_multistep_lr(x, period=num_of_epochs//T, decay_base=1,
                                         milestone=[step_size, step_size*9//5], gamma=[0.5, 0.1], 
                                         lr=self.hyper['learning_rate'])
+        else:
+            raise ValueError(f"Unsupported lr_scheduler: {self.hyper['lr_scheduler']}")
         return self.lr_lambda
 
     # 不这么搞随机jittor和numpy的联动会出bug，随机种子有问题
@@ -47,7 +74,7 @@ class Base_Trainer():
         parser = BaseParser()
         self.parser = parser.parse()
         with open(self.parser.runfile, 'r', encoding="utf-8") as f:
-            self.args = yaml.load(f.read(), Loader=yaml.FullLoader)
+            self.args = yaml.safe_load(f)
         self.mode = self.args['mode'] if self.parser.mode is None else self.parser.mode
         self.save_plot = self.parser.save_plot
         if self.parser.debug:
@@ -63,9 +90,12 @@ class Base_Trainer():
         self.hostname = socket.gethostname()
         self.model_name = self.args['model_name']
         self.model_dir = self.args['checkpoint']
+        self.cache_root = self.args.get('cache_dir', os.environ.get('PMN_CACHE_DIR', 'cache'))
         self.sample_dir = os.path.join(self.args['result_dir'] ,f"samples-{self.model_name}")
         os.makedirs(self.sample_dir, exist_ok=True)
         os.makedirs(self.sample_dir+'/temp', exist_ok=True)
+        os.makedirs(self.model_dir, exist_ok=True)
+        os.makedirs(self.cache_root, exist_ok=True)
         os.makedirs('./logs', exist_ok=True)
         os.makedirs('./checkpoints', exist_ok=True)
         os.makedirs('./metrics', exist_ok=True)

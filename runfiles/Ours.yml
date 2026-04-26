@@ -2,6 +2,7 @@ mode: 'evaltest'
 checkpoint: 'saved_model/'
 model_name: 'SonyA7S2_Mix_Unet'
 result_dir: 'images/'
+cache_dir: 'cache/'
 num_gpu: 2
 num_workers: 4
 save_plot: True
